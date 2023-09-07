@@ -1,21 +1,13 @@
 locals {
   owner      = "Snigdhajyoti Ghosh"
-  tag_prefix = "joe"
-}
-
-module "az-common" {
-  source = "./modules/az-common"
-
-  owner      = local.owner
-  tag_prefix = local.tag_prefix
+  name_prefix = "joe"
 }
 
 module "az-network" {
   source = "./modules/az-network"
 
   owner                      = local.owner
-  tag_prefix                 = local.tag_prefix
-  resource_group             = module.az-common.resource_group
+  name_prefix                 = local.name_prefix
   create_nat_gateway         = false
   virtual_network_cidr_block = "10.2.0.0/20"
   no_of_private_subnet       = 3

@@ -3,17 +3,9 @@ variable "owner" {
   type        = string
 }
 
-variable "tag_prefix" {
+variable "name_prefix" {
   description = "Resource tag prefix"
   type        = string
-}
-
-variable "resource_group" {
-  description = "Resource group information"
-  type = object({
-    name = string
-    location = string
-  })
 }
 
 variable "create_nat_gateway" {
