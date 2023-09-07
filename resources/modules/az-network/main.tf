@@ -1,9 +1,10 @@
-resource "azurerm_resource_group" "this" {
-  name     = "${var.name_prefix}-sandbox-central-india-network-ng"
-  location = "Central India"
+module "resource_group" {
+  source = "../az-resource-group"
 
-  tags = {
-    component   = "az-network"
+  location    = "Central India"
+  module_name = "network"
+  name_prefix = "${var.name_prefix}-sandbox-central-india"
+  common_tags = {
     environment = "sandbox"
     owner       = var.owner
   }
@@ -11,8 +12,8 @@ resource "azurerm_resource_group" "this" {
 
 resource "azurerm_virtual_network" "virtual_network" {
   name                = "${var.name_prefix}-virtual-network"
-  location            = azurerm_resource_group.this.location
-  resource_group_name = azurerm_resource_group.this.name
+  location            = module.resource_group.resource_group_location
+  resource_group_name = module.resource_group.resource_group_name
   address_space       = [var.virtual_network_cidr_block]
 }
 
@@ -24,7 +25,7 @@ resource "azurerm_subnet" "public_subnet" {
   }
 
   name                 = "${var.name_prefix}-public-subnet-${each.key}"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = module.resource_group.resource_group_name
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = [each.value.cidr_block]
 }
@@ -37,7 +38,7 @@ resource "azurerm_subnet" "private_subnet" {
   }
 
   name                 = "${var.name_prefix}-private-subnet-${each.key}"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = module.resource_group.resource_group_name
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = [each.value.cidr_block]
 }
@@ -46,8 +47,8 @@ resource "azurerm_public_ip" "nat_public_ip" {
   count = var.create_nat_gateway ? 1 : 0
 
   name                = "${var.name_prefix}-nat-gateway-public-ip"
-  location            = azurerm_resource_group.this.location
-  resource_group_name = azurerm_resource_group.this.name
+  location            = module.resource_group.resource_group_location
+  resource_group_name = module.resource_group.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
   zones               = ["1"]
@@ -57,8 +58,8 @@ resource "azurerm_nat_gateway" "nat_gateway" {
   count = var.create_nat_gateway ? 1 : 0
 
   name                    = "${var.name_prefix}-nat-gateway"
-  location                = azurerm_resource_group.this.location
-  resource_group_name     = azurerm_resource_group.this.name
+  location                = module.resource_group.resource_group_location
+  resource_group_name     = module.resource_group.resource_group_name
   idle_timeout_in_minutes = 10
   sku_name                = azurerm_public_ip.nat_public_ip[0].sku
   zones                   = azurerm_public_ip.nat_public_ip[0].zones
