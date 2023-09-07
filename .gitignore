@@ -1,7 +1,14 @@
 .idea
-*.iml
+
 **/.terraform
 **/.terraform.lock.hcl
 **/.terraform.tfstate.lock.info
 **/terraform.tfstate
 **/terraform.tfstate.backup
+
+*.key
+*.crt
+*.pem
+*.p12
+
+!.gitkeep
